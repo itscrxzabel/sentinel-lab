@@ -1,0 +1,23 @@
+# Arbeitsdateien
+Todo.md
+CLAUDE.md
+
+# Secrets und Zugangsdaten
+*.pem
+*.key
+*.pfx
+*.env
+.env*
+*token*
+*secret*
+
+# Rohdaten und Exporte mit IDs
+*.har
+*.log
+*.evtx
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
