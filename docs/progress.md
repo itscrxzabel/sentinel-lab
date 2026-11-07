@@ -1,5 +1,88 @@
 # Progress
 
+## 2026-11-07 Woche 2 (DCR für Sysmon)
+
+### Erledigt
+
+- Check Agent installiert
+    ![Agent installiert](assets/dcr-proof-1.png)
+- Prüfung ob Agent Daten an den Workspace sendet
+    - Tool: log_analytics_query
+    - Resource: /subscriptions/[...]/resourcegroups/rg-sentinel-lab-gwc-001/providers/microsoft.operationalinsights/workspaces/log-sentinel-lab-gwc-001
+    - Time window: 2026-11-06T13:20:44.0000000Z .. 2026-11-07T13:20:44.0000000Z
+    - Query:
+        ```kql
+        Heartbeat
+        | where TimeGenerated >= datetime(2026-11-06T13:20:44Z) and TimeGenerated < datetime(2026-11-07T13:20:44Z)
+        | summarize Heartbeats=count(), FirstSeen=min(TimeGenerated), LastSeen=max(TimeGenerated) by Computer, ResourceId, ResourceType, OSType, SourceSystem
+        | extend MinutesSinceLastSeen = datetime_diff('minute', datetime(2026-11-07T13:20:44Z), LastSeen)
+        | order by LastSeen desc
+        | take 20
+        ```
+    - Ergebnistabelle
+        ![](assets/heartbeat-check.png)
+
+#### Schritt für Schritt DCR für Sysmon angelegt:
+- Ressource auf VM-SENTINEL-01 gesetzt, Resource Type: Machine - Azure Arc
+    ![](assets/dcr-ressource.png)
+- DCR für Sysmon, Data Source auf Windows Event Log
+gesetzt, Filter auf die Event IDs 1, 3, 10, 11, 13 (Sysmon)
+    ![](assets/dcr-data-src.png)
+- Destination auf Log Analytics Workspace gesetzt
+    ![](assets/dcr-destination.png)
+
+- Geprüft das Sysmon Events im Workspace ankommen
+    ![](assets/sysmonevents-check.png)
+
+### Offen
+- Security-Events-DCR
+- Prüfung ob 1GB Daily Cap für Sysmon und Security Events ausreicht
+
+## 2026-11-05 - Woche 2 (Event 10 narrowing down)
+
+### Erledigt
+- Gemerkt das Event ID 10 (Process Access) sehr viele Events erzeugt, auch wenn
+nur lsass.exe überwacht wird.
+- Eingrenzung Schritt für Schritt begonnen mit taskmgr.exe
+    ```xml
+        <RuleGroup name="" groupRelation="and">
+                <ProcessAccess onmatch="exclude">
+                    <SourceImage condition="image">C:\Windows\system32\taskmgr.exe</SourceImage>
+                    <GrantedAccess condition="is">0x1400</GrantedAccess>
+                </ProcessAccess>
+            </RuleGroup>
+    ```
+
+## 2026-11-04 - Woche 2 (Einrichtung config file für Sysmon)
+### Erledigt
+- Ergänzungen für Event ID 10 vorgenommen um einkommenden Verkehr zu lsass.exe zu erkennen (Credential dumping)
+    ```xml
+    <!--SYSMON EVENT ID 10 : INTER-PROCESS ACCESS [ProcessAccess]-->
+            <!--EVENT 10: "Process accessed"-->
+            <!--COMMENT:	Can cause high system load, disabled by default.-->
+            <!--COMMENT:	Monitor for processes accessing other process' memory.-->
+
+            <!--DATA: UtcTime, SourceProcessGuid, SourceProcessId, SourceThreadId, SourceImage, TargetProcessGuid, TargetProcessId, TargetImage, GrantedAccess, CallTrace-->
+        <RuleGroup name="" groupRelation="or">
+            <ProcessAccess onmatch="include">
+                <TargetImage condition="image">lsass.exe</TargetImage>
+            </ProcessAccess>
+        </RuleGroup>
+    ```
+
+
+## 2026-11-03 - Woche 2 (Installation und Einrichtung Sysmon und DCR)
+### Erledigt
+- sysmon64 auf VM-SENTINEL-01 installiert
+    - Sysmon64 von Microsoft Sysinternals installiert
+    - in der VM cmd mit Administrator Rechten sysmon64 -accepteula -i ausgeführt
+    - Geprüft welche Ereignisse bereits laufen 1,4,5,16
+
+### Offen
+- Config besorgen, prüfen, mit -c einspielen
+- DCR anlegen
+- Tabelle Event oder WindowsEvent an der DCR prüfen
+
 ## 2026-10-29 - Woche 1, Tag 3 (Azure Arc Onboarding)
 
 ### Erledigt
@@ -139,7 +222,7 @@ Rule, Action Group, Arc-Ressource loeschen).
 ### Naechster Schritt
 - Lokale Windows Server VM vorbereiten (4-6 GB RAM).
 
-### Gelernt (selbst ergaenzen)
+### Gelernt
 - Wie man eine Resource Group und Log-Analytics-Workspace in Azure erstellt.
 - Wie man eine Daily Cap fuer einen Log-Analytics-Workspace setzt.
 - Wie man ein Alert Rule mit einer Action Group erstellt.
