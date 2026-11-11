@@ -1,5 +1,39 @@
 # Progress
 
+## 2026-11-11 Woche 3 (DCR Security Events)
+
+### Erledigt
+- Created DCR for Windows Security Events via AMA (connected to VM)
+    ![](assets/dcr-securityevents.png)
+    ![](assets/monitor-dcr.png)
+- Checked if Security Events are arriving in the Log Analytics Workspace
+    ```kql
+    SecurityEvent
+    | summarize count () by EventID
+    ```
+- Stand Prozesserstellung geprüft mit `auditpol /get /subcategory:"Prozesserstellung"`
+    - Ergebnis: Nicht aktiviert
+    - Mit `auditpol /set /subcategory:"Prozesserstellung" /success:enable`
+aktiviert
+- Kommandozeile Richtlinie aktiviert gpedit.msc
+    - Computerkonfiguration > Administrative Vorlagen > System >
+Prozesserstellung überwachen > Befehlszeile in Prozesserstellungsereignisse
+einschließen > Aktiviert
+gesetzt
+- Im cmd die Richtlinie mit gpupdate /force aktualisiert
+- Im Eventviewer geprüft, dass die Richtlinie aktiv ist (Event ID 4688)
+    ![](assets/Prozessbefehlszeilencheck.png)
+- Gecheckt ob Event ID in Azure Sentinel ankommt
+    - Query:
+        ```kql
+        SecurityEvent
+        | where EventID == 4688
+        | summarize count() by Computer, EventID, bin(TimeGenerated, 1h)
+        | order by TimeGenerated desc
+        ```
+    - Ergebnis: Event ID 4688 kommt an
+        ![](assets/EventID4688.png)
+
 ## 2026-11-07 Woche 2 (DCR für Sysmon)
 
 ### Erledigt
