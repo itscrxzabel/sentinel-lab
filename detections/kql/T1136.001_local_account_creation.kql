@@ -1,0 +1,15 @@
+// Title: Local account created via net.exe / net1.exe
+// MITRE: T1136.001 (Persistence)
+// Data source: SecurityEvent (EventID 4688, requires command line logging in process creation events)
+// Severity: Medium
+// Description: Detects creation of a local user account via "net user ... /add" by matching
+//   process creation events for net.exe or net1.exe with "user" and "/add" in the command line.
+//   Does not cover other methods such as PowerShell (New-LocalUser) or direct API calls.
+
+SecurityEvent
+| where TimeGenerated > ago(24h)
+| where EventID == 4688
+| where Process in~ ("net.exe", "net1.exe")
+| where CommandLine has "user" and CommandLine contains "/add"
+| project TimeGenerated, Computer, SubjectUserName, ParentProcessName, NewProcessName, CommandLine
+| order by TimeGenerated desc

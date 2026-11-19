@@ -3,9 +3,9 @@
 ## 2026-11-19 Woche 4 (Testen der ersten Atomic Tests)
 
 ### Erledigt
-- Ersten Test laufen lassen mit dem Befehl 'Invoke-AtomicTest T1136.001 -TestNumbers 4'
+- Ersten Test laufen lassen mit dem Befehl `Invoke-AtomicTest T1136.001 -TestNumbers 4`
     - Fehlermeldung: Kennwort nicht lang genug bei ausführen von
-'Invoke-AtomicTest T1136.001 -TestNumbers 4' ohne Anpassung von Password
+`Invoke-AtomicTest T1136.001 -TestNumbers 4` ohne Anpassung von Password
     - Neuer command: 'Invoke-AtomicTest T1136.001 -TestNumbers 4 -InputArgs @{password="[]"}'
 - In Azure geprüft ob der Angriff protokolliert wird
     - Query:
@@ -20,8 +20,8 @@
         ```
     - Wie im Bild zusehen ist wurde der Angriff erkannt
         ![](assets/T1136.png)
-    - Cleanup mit 'Invoke-AtomicTest T1136.001 -TestNumbers 4 -Cleanup' und
-Verifikation mit 'net user' in der VM, dass der Benutzer gelöscht wurde
+    - Cleanup mit `Invoke-AtomicTest T1136.001 -TestNumbers 4 -Cleanup` und
+Verifikation mit `net user` in der VM, dass der Benutzer gelöscht wurde
 
 ## 2026-11-14 Woche 3 (Installation of Atomic Red Team)
 
