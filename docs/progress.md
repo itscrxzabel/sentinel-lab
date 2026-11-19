@@ -1,5 +1,41 @@
 # Progress
 
+## 2026-11-19 Woche 3 (Testen der ersten Atomic Tests)
+
+### Erledigt
+- Ersten Test laufen lassen mit dem Befehl 'Invoke-AtomicTest T1136.001 -TestNumbers 4'
+    - Fehlermeldung: Kennwort nicht lang genug bei ausführen von
+'Invoke-AtomicTest T1136.001 -TestNumbers 4' ohne Anpassung von Password
+    - Neuer command: 'Invoke-AtomicTest T1136.001 -TestNumbers 4 -InputArgs @{password="[]"}'
+- In Azure geprüft ob der Angriff protokolliert wird
+    - Query:
+        ```kql
+        SecurityEvent
+        | where TimeGenerated > ago(24h)
+        | where EventID == 4688
+        | where Process in~ ("net.exe", "net1.exe")
+        | where CommandLine has "user" and CommandLine contains "/add"
+        | project TimeGenerated, Computer, SubjectUserName, ParentProcessName, NewProcessName, CommandLine
+        | order by TimeGenerated desc
+        ```
+    - Wie im Bild zusehen ist wurde der Angriff erkannt
+        ![](assets/T1136.png)
+    - Cleanup mit 'Invoke-AtomicTest T1136.001 -TestNumbers 4 -Cleanup' und
+Verifikation mit 'net user' in der VM, dass der Benutzer gelöscht wurde
+
+## 2026-11-14 Woche 3 (Installation of Atomic Red Team)
+
+### Erledigt
+![](assets/atomic-red-team.png)
+- Installed Atomic Red Team on my VM using Powershell as Admin and running the
+code 'IEX (IWR 'https://raw.githubusercontent.com/redcanaryco/invoke-atomicredteam/master/install-atomicredteam.ps1' -UseBasicParsing);
+Install-AtomicRedTeam -getAtomics'
+    - Windows Defender automatically removed incidents from the Atomic folder
+which are ment to be used for testing
+    - Added the Atomic folder to the Windows Defender Exclusion list
+    - Reinstalled Atomic Red Team using 'IEX (IWR 'https://raw.githubusercontent.com/redcanaryco/invoke-atomicredteam/master/install-atomicredteam.ps1' -UseBasicParsing);
+Install-AtomicRedTeam -getAtomics -Force'
+
 ## 2026-11-11 Woche 3 (DCR Security Events)
 
 ### Erledigt
