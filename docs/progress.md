@@ -1,6 +1,6 @@
 # Progress
 
-## 2026-11-19 Woche 3 (Testen der ersten Atomic Tests)
+## 2026-11-19 Woche 4 (Testen der ersten Atomic Tests)
 
 ### Erledigt
 - Ersten Test laufen lassen mit dem Befehl 'Invoke-AtomicTest T1136.001 -TestNumbers 4'
