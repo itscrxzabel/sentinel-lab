@@ -1,5 +1,29 @@
 # Progress
 
+## 2026-11-20 Woche 4 (Testen der ersten Atomic Tests)
+
+### Erledigt
+- Gemerkt dass für EventID 4698 'Other Object Access Events' aktiviert sein
+muss, sonst wird der Scheduled Task nicht protokolliert
+    - `auditpol /get /subcategory:"Other Object Access Events"` zum prüfen ob
+aktiv oder nicht
+    - Gemerkt nicht aktiv -> aktiviert mit `auditpol /set /subcategory:"OtherObject Access Events" /success:enable`
+- EventID 4698 nicht in Azure Sentinel angekommen, obwohl in der VM im
+Eventviewer zu sehen
+    - DCR angepasst mit XPath Filter `Security!*[System[(EventID=4698)]]`
+    ![](assets/DCR-EventID-4698.png)
+- Attacke wurde erfolgreich erkannt und im Security Log EventID:4698 erfasst
+- Hunting Query ([kql query](../detections/kql/T1053.005_scheduled_task.kql))
+angepasst und erfolgreich getestet
+
+![](assets/first-analytics-rule.png)
+
+- Microsoft Sentinel Incident Proof of Detection of T1547.001-1 (Registry Run
+Key / Startup Folder)
+    ![](assets/Incident-T1547.001-1.png)
+
+### Erledigt
+
 ## 2026-11-19 Woche 4 (Testen der ersten Atomic Tests)
 
 ### Erledigt

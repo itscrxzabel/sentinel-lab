@@ -1,0 +1,19 @@
+// Title: Burst of local account discovery commands
+// MITRE: T1087.001 (Discovery)
+// Data source: SecurityEvent (EventID 4688, requires command line logging in process creation events)
+// Severity: Low
+// Description: Detects several local account / group enumeration commands (net user, net localgroup,
+//   cmdkey /list) by the same account within 5 minutes. One single "net user" is common, a burst of
+//   them is typical for hands-on-keyboard reconnaissance after initial access.
+//   Account creation commands (/add, /delete) are excluded, they are covered by the T1136.001 rule.
+// False positives / Tuning: Admins and inventory or support scripts run these commands.
+//   Tune by excluding known admin accounts or hosts, or by raising the threshold.
+
+SecurityEvent
+| where TimeGenerated > ago(24h)
+| where EventID == 4688
+| where (Process in~ ("net.exe", "net1.exe") and CommandLine has_any ("user", "localgroup") and not(CommandLine contains "/add") and not(CommandLine contains "/delete"))
+    or (Process =~ "cmdkey.exe" and CommandLine contains "/list")
+| summarize Count = count(), Commands = make_set(CommandLine, 10) by Computer, SubjectUserName, bin(TimeGenerated, 5m)
+| where Count >= 3
+| order by TimeGenerated desc

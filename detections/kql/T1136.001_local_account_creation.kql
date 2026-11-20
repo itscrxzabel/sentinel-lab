@@ -5,6 +5,8 @@
 // Description: Detects creation of a local user account via "net user ... /add" by matching
 //   process creation events for net.exe or net1.exe with "user" and "/add" in the command line.
 //   Does not cover other methods such as PowerShell (New-LocalUser) or direct API calls.
+// False positives / Tuning: Admins and provisioning scripts create local accounts legitimately.
+//   Tune by excluding known admin accounts or parent processes, and review unusual account names.
 
 SecurityEvent
 | where TimeGenerated > ago(24h)

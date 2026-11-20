@@ -1,0 +1,19 @@
+// Title: Scheduled task created with a script/shell action
+// MITRE: T1053.005 (Execution, Persistence, Privilege Escalation)
+// Data source: SecurityEvent (EventID 4698; requires audit subcategory "Other Object Access Events" and 4698 in the DCR)
+// Severity: Medium
+// Description: Detects creation of a scheduled task (4698) whose task XML runs a shell, script host
+//   or LOLBin (cmd, PowerShell, wscript, mshta, ...) or points to user-writable paths.
+//   TaskName and TaskContent are extracted from the raw EventData XML with regex.
+// False positives / Tuning: Many legitimate admin and software-update tasks run cmd.exe or PowerShell.
+//   Tune by excluding known task names or accounts, and by limiting the has_any list to
+//   obfuscation (-enc) and user-writable paths once a baseline exists.
+
+SecurityEvent
+| where TimeGenerated > ago(24h)
+| where EventID == 4698
+| extend TaskName = extract(@"<Data Name=['""]TaskName['""]>([^<]+)</Data>", 1, EventData)
+| extend TaskContent = extract(@"<Data Name=['""]TaskContent['""]>([\s\S]*?)</Data>", 1, EventData)
+| where TaskContent has_any ("powershell", "cmd.exe", "wscript", "cscript", "mshta", "rundll32", "regsvr32", "-enc", "\\Temp\\", "\\AppData\\", "\\Users\\Public\\")
+| project TimeGenerated, Computer, Account, TaskName, TaskContent
+| order by TimeGenerated desc

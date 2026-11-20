@@ -1,0 +1,17 @@
+// Title: Registry Run key persistence via reg.exe
+// MITRE: T1547.001 (Persistence, Privilege Escalation)
+// Data source: SecurityEvent (EventID 4688, requires command line logging in process creation events)
+// Severity: Medium
+// Description: Detects reg.exe adding a value under a "...\CurrentVersion\Run" or "...\RunOnce" key,
+//   which makes a program start at every logon. Matches the process command line of the reg.exe call.
+//   Does not cover other ways to write the key (PowerShell Set-ItemProperty, direct API calls, regedit).
+// False positives / Tuning: Installers and admin scripts legitimately write Run keys.
+//   Tune by excluding known parent processes or known value names, and review the target program path.
+
+SecurityEvent
+| where TimeGenerated > ago(24h)
+| where EventID == 4688
+| where Process =~ "reg.exe"
+| where CommandLine has "add" and CommandLine contains @"\CurrentVersion\Run"
+| project TimeGenerated, Computer, SubjectUserName, ParentProcessName, NewProcessName, CommandLine
+| order by TimeGenerated desc
