@@ -1,5 +1,18 @@
 # Progress
 
+
+## 2026-11-21 Woche 4 (Testen der ersten Atomic Tests)
+
+### Erledigt
+- (4/4) Atomic Tests erfolgreich getestet:
+    ![](../assets/all-incidents-sentinel.png)
+- All active rules created
+    ![](../assets/active-rules-sentinel.png)
+- Created an automation rule that tags incidents with `lab-test` and assigns the
+incident automatically
+    ![](assets/automation-rule.png)
+    ![](assets/automation-rule-result.png)
+
 ## 2026-11-20 Woche 4 (Testen der ersten Atomic Tests)
 
 ### Erledigt
