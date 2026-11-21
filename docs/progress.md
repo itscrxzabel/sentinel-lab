@@ -12,6 +12,42 @@
 incident automatically
     ![](assets/automation-rule.png)
     ![](assets/automation-rule-result.png)
+- Vier Scheduled Analytics Rules angelegt (T1547.001 am 20.11., T1136.001,
+T1053.005 und T1087.001 am 21.11.)
+    - Query ohne `ago(24h)`, den Zeitraum steuert die Rule
+    - Entity Mapping: Account = `SubjectUserName`, Host = `Computer`
+    - Ablauf alle 5 Minuten, Lookback 10 Minuten, Alert ab mehr als 0 Ergebnissen
+    - Severity: Medium (T1136.001, T1053.005, T1547.001), Low (T1087.001)
+- Alle vier Techniken erkannt (4/4), insgesamt 8 Incidents aus 5 Aktivitäten
+    - Duplikate entstehen durch den überlappenden Lookback (10 Minuten bei 5
+Minuten Takt), weil Alert Grouping aus ist
+    - Zeit von der Aktivität bis zum Incident: etwa 6 bis 14 Minuten
+    - Logs zeigen UTC, die Incident-Seite zeigt Ortszeit (UTC+1)
+- Cleanup der Atomic-Tests in der VM geprüft (Konto, Task und Run-Key weg)
+- Drei Tier-1-Tickets in `tickets/` (True Positive, Benign True Positive, True
+Positive mit Eskalation), SOC-Report als Markdown in `reports/`
+- README (DE und EN), `docs/architecture.md` und `docs/event-reference.md`
+geschrieben
+- Sicherheitscheck vor dem Commit: keine IDs, IPs oder Secrets im Repo
+- Alles auf Git committet und gepusht
+
+### Offen
+- SOC-Report als PDF exportieren (`reports/SOC-Report.pdf`)
+- Rules und Automation Rule als JSON exportieren, Logs als CSV sichern
+- GitHub prüfen: README, Bilder, Repo auf Public
+- Nicht umgesetzt: Playbook, Workbook, Sigma-Regeln und Splunk-Portierung
+
+### Naechster Schritt
+- 22.11.: Aufräumen (Workspace, Alert Rule, Action Group, Arc-Ressource
+löschen, Azure CLI vom Host deinstallieren, erhöhten Zugriff zurücknehmen)
+
+### Gelernt
+- Eine Rule prüft nur Events im Lookback. Der Test muss nach dem Anlegen der
+Rule laufen.
+- Ein größerer Lookback als der Takt erzeugt doppelte Incidents.
+- Ein richtiger Alert kann harmlos sein (Benign True Positive), wenn ein bekanntes
+Konto die Aktivität auslöst.
+- Eine Automation Rule wirkt nur auf neue Incidents, nicht rückwirkend.
 
 ## 2026-11-20 Woche 4 (Testen der ersten Atomic Tests)
 
